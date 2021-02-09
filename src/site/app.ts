@@ -14,6 +14,9 @@ import TalonSdk, { assembleFinalCaptchaKey, InitData, PhaserSession, Timing } fr
 import { TALON_REFERRER, TALON_WEBSITE_BASE } from '../common/constants';
 import { getCookies, setCookie } from '../common/request';
 
+const https = require('https');
+const fs = require('fs');
+
 const baseUrl = new URL(config.baseUrl);
 const basePath = baseUrl.pathname;
 
@@ -245,4 +248,12 @@ app.disable('etag');
 
 app.use(basePath, router);
 
-app.listen(config.serverPort);
+const options = {
+  key: fs.readFileSync("/usr/app/config/privkey.pem"),
+  cert: fs.readFileSync("/usr/app/config/fullchain.pem"),
+  ca: fs.readFileSync("/usr/app/config/chain.pem")
+};
+
+const server = https.createServer(options, app);
+
+server.listen(config.serverPort);
